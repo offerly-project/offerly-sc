@@ -4,12 +4,8 @@ type Params = {
 	bank: string;
 };
 
-type Query = {
-	cards: string;
-};
-
 const deltaHandler = async (
-	req: Request<Params, {}, {}, Query>,
+	req: Request<Params>,
 	res: Response,
 	next: NextFunction
 ) => {

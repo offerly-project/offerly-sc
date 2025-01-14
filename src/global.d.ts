@@ -5,3 +5,7 @@ declare module "express-serve-static-core" {
 		scrapper: IScrapper;
 	}
 }
+
+export interface IOffer {
+	en: string;
+}

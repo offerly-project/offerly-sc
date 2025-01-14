@@ -4,7 +4,7 @@ type Params = {
 	bank: string;
 };
 
-const deltaHandler = async (
+const scrapeHandler = async (
 	req: Request<Params>,
 	res: Response,
 	next: NextFunction
@@ -21,5 +21,5 @@ const deltaHandler = async (
 };
 
 export const ScrapeController = {
-	deltaHandler,
+	scrapeHandler,
 };

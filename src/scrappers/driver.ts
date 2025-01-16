@@ -6,9 +6,13 @@ export class ScrapeDriver {
 
 	launch = async () => {
 		this._driver = await Puppeteer.launch({
-			headless: false,
+			headless: true,
 			defaultViewport: null,
 		});
+	};
+
+	close = async () => {
+		await this._driver.close();
 	};
 
 	newPage = async () => {

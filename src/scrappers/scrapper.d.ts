@@ -6,9 +6,14 @@ interface IDelta {
 	delta_removed: string[];
 }
 
+type Delta = {
+	ar: IDelta;
+	en: IDelta;
+};
+
 export interface IScrapper {
-	urls: URLS;
-	scrapeArabicOffers(): Promise<IOffer[]>;
-	scrapeEnglishOffers(): Promise<IOffer[]>;
-	getDelta(offers: IOffer[]): Promise<IDelta>;
+	urls: URLS<any>;
+	getArabicOffersDelta(offers: Set<string>): Promise<IDelta>;
+	getEnglishOffersDelta(offers: Set<string>): Promise<IDelta>;
+	getDelta(offers: IOffer[]): Promise<Delta>;
 }

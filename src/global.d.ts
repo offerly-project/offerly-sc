@@ -8,4 +8,5 @@ declare module "express-serve-static-core" {
 
 export interface IOffer {
 	en: string;
+	ar: string;
 }

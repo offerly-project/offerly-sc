@@ -45,6 +45,7 @@ export class Repository {
 		{
 			$project: {
 				en: 1,
+				ar: 1,
 			},
 		},
 	];

@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+import { Bank, BANKS } from "./constants";
+import { repository } from "./repository";
 
 type Params = {
-	bank: string;
+	bank: Bank;
 };
 
 const scrapeHandler = async (
@@ -11,7 +13,12 @@ const scrapeHandler = async (
 ) => {
 	try {
 		const scrapper = req.scrapper;
-		const delta = scrapper.getDelta();
+		if (!BANKS.includes(req.params.bank)) {
+			res.status(400).json({ message: "Invalid bank" });
+			return;
+		}
+		const offers = await repository.getBankOffers(req.params.bank);
+		const delta = await scrapper.getDelta(offers);
 
 		res.json(delta);
 	} catch (e) {

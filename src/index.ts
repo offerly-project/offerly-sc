@@ -1,24 +1,21 @@
-// (async function () {
-
-// import { connectToDB } from "./db";
-// connectToDB();
-// 	const app = express();
-
-// 	app.use(json());
-
-// app.get("/delta/:bank", scrapperInjector, ScrapeController.deltaHandler);
-
-// 	app.listen(env.PORT, () => {
-// 		console.log(`Server is running on port ${env.PORT}`);
-// 	});
-// })();
-
-import { repository } from "./repository";
-import { setupScrapper } from "./scrappers/factory";
+import express, { json } from "express";
+import { env } from "./config";
+import { ScrapeController } from "./controller";
+import { connectToDB } from "./db";
+import { scrapperInjector } from "./middlewares";
 (async function () {
-	const rajhi = await setupScrapper("alrajhi");
-	const offers = await repository.getBankOffers("alrajhi");
-	const delta = await rajhi.getDelta(offers);
+	connectToDB();
+	const app = express();
 
-	// Delta Testing.
+	app.use(json());
+
+	app.get("/delta/:bank", scrapperInjector, ScrapeController.scrapeHandler);
+
+	app.listen(env.PORT, () => {
+		console.log(`Server is running on port ${env.PORT}`);
+	});
+})();
+
+(async function () {
+	// Sandbox
 })();

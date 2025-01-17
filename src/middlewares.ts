@@ -55,6 +55,6 @@ export const authMiddleware = async (
 		next();
 		return;
 	} catch (e) {
-		next(e);
+		res.status(401).send("Invalid token");
 	}
 };

@@ -1,4 +1,5 @@
 import express, { json } from "express";
+import morgan from "morgan";
 import { env } from "./config";
 import { ScrapeController } from "./controller";
 import { connectToDB } from "./db";
@@ -8,6 +9,8 @@ import { scrapperInjector } from "./middlewares";
 	const app = express();
 
 	app.use(json());
+
+	app.use(morgan("dev"));
 
 	app.get("/delta/:bank", scrapperInjector, ScrapeController.scrapeHandler);
 

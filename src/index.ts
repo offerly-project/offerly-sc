@@ -1,3 +1,4 @@
+import cors from "cors";
 import express, { json } from "express";
 import morgan from "morgan";
 import { env } from "./config";
@@ -11,6 +12,16 @@ import { authMiddleware, scrapperInjector } from "./middlewares";
 	app.use(json());
 
 	app.use(morgan("dev"));
+
+	app.use(
+		cors({
+			origin: [
+				"http://localhost:3000",
+				"http://localhost:8080",
+				"https://offerly.me",
+			],
+		})
+	);
 
 	app.get(
 		"/delta/:bank",

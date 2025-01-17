@@ -1,6 +1,8 @@
 import { Page } from "puppeteer";
+import { env } from "../../config";
 import { IOffer } from "../../global";
 import { URLS } from "../../urls";
+import { sleep } from "../../utils";
 import { ScrapeDriver } from "../driver";
 import { Delta, IDelta, IScrapper } from "../scrapper";
 
@@ -43,6 +45,7 @@ export class AlRajhiScrapper implements IScrapper {
 			const page = await driver.newPage();
 			await driver.goTo(page, this.urls.baseUrl + hrefs[i]);
 			pages.push(page);
+			await sleep(+env.RATE_LIMIT_S);
 		}
 
 		const liveOffers = new Set<string>();
@@ -55,7 +58,7 @@ export class AlRajhiScrapper implements IScrapper {
 			for await (const offerNode of offerNodes) {
 				const title = await offerNode.evaluate((el) => el.textContent);
 				if (title) {
-					liveOffers.add(title);
+					liveOffers.add(title.trim());
 				}
 			}
 		}
@@ -90,6 +93,7 @@ export class AlRajhiScrapper implements IScrapper {
 			const page = await driver.newPage();
 			await driver.goTo(page, this.urls.baseUrl + hrefs[i]);
 			pages.push(page);
+			await sleep(+env.RATE_LIMIT_S);
 		}
 
 		const liveOffers = new Set<string>();
@@ -102,7 +106,7 @@ export class AlRajhiScrapper implements IScrapper {
 			for await (const offerNode of offerNodes) {
 				const title = await offerNode.evaluate((el) => el.textContent);
 				if (title) {
-					liveOffers.add(title);
+					liveOffers.add(title.trim());
 				}
 			}
 		}

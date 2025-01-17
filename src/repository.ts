@@ -38,6 +38,11 @@ export class Repository {
 			$unwind: "$offers",
 		},
 		{
+			$match: {
+				"offers.status": "enabled",
+			},
+		},
+		{
 			$replaceRoot: {
 				newRoot: "$offers.title",
 			},

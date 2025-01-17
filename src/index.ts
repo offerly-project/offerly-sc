@@ -3,7 +3,7 @@ import morgan from "morgan";
 import { env } from "./config";
 import { ScrapeController } from "./controller";
 import { connectToDB } from "./db";
-import { scrapperInjector } from "./middlewares";
+import { authMiddleware, scrapperInjector } from "./middlewares";
 (async function () {
 	connectToDB();
 	const app = express();
@@ -12,7 +12,12 @@ import { scrapperInjector } from "./middlewares";
 
 	app.use(morgan("dev"));
 
-	app.get("/delta/:bank", scrapperInjector, ScrapeController.scrapeHandler);
+	app.get(
+		"/delta/:bank",
+		authMiddleware,
+		scrapperInjector,
+		ScrapeController.scrapeHandler
+	);
 
 	app.listen(env.PORT, () => {
 		console.log(`Server is running on port ${env.PORT}`);

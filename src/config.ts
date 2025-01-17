@@ -8,6 +8,7 @@ const envSchema = z.object({
 	DB_URL: z.string(),
 	RATE_LIMIT_S: z.string(),
 	NODE_ENV: z.string(),
+	PRIVATE_KEY: z.string(),
 });
 
 export const env = envSchema.parse(process.env);

@@ -1,16 +1,20 @@
 import { Page } from "puppeteer";
-import { env } from "../../config";
+import { DRIVER_RATE_LIMIT } from "../../constants";
 import { IOffer } from "../../global";
 import { URLS } from "../../urls";
 import { sleep } from "../../utils";
-import { ScrapeDriver } from "../driver";
-import { Delta, IDelta, IScrapper } from "../scrapper";
+import { Delta, Drivers, IDelta, IScrapper } from "../scrapper";
 
 export class AlRajhiScrapper implements IScrapper {
 	urls = new URLS("https://www.alrajhibank.com.sa", {
 		en_main: "/en/Personal/Offers",
 		ar_main: "/ar/Personal/Offers",
 	});
+	drivers: Drivers = {} as Drivers;
+	constructor(drivers: Drivers) {
+		this.drivers.en = drivers.en;
+		this.drivers.ar = drivers.ar;
+	}
 
 	async getPageOffers(page: Page): Promise<string[]> {
 		const offers: string[] = [];
@@ -23,11 +27,9 @@ export class AlRajhiScrapper implements IScrapper {
 	}
 
 	async getArabicOffersDelta(dbOffers: Set<string>): Promise<IDelta> {
-		const driver = new ScrapeDriver();
-		await driver.launch();
 		// Main Page
-		const mainPage = await driver.newPage();
-		await driver.goTo(mainPage, this.urls.getPath("ar_main"));
+		const mainPage = await this.drivers.ar.newPage();
+		await this.drivers.ar.goTo(mainPage, this.urls.getPath("ar_main"));
 		const categoriesContainer = await mainPage.$$(
 			"::-p-xpath(/html/body/div[2]/main/section/div/div/div/div/div/div)"
 		);
@@ -42,10 +44,10 @@ export class AlRajhiScrapper implements IScrapper {
 
 		const pages: Page[] = [];
 		for (let i = 0; i < hrefs.length; i++) {
-			const page = await driver.newPage();
-			await driver.goTo(page, this.urls.baseUrl + hrefs[i]);
+			const page = await this.drivers.ar.newPage();
+			await this.drivers.ar.goTo(page, this.urls.baseUrl + hrefs[i]);
 			pages.push(page);
-			await sleep(+env.RATE_LIMIT_S);
+			await sleep(DRIVER_RATE_LIMIT);
 		}
 
 		const liveOffers = new Set<string>();
@@ -71,11 +73,9 @@ export class AlRajhiScrapper implements IScrapper {
 		};
 	}
 	async getEnglishOffersDelta(dbOffers: Set<string>): Promise<IDelta> {
-		const driver = new ScrapeDriver();
-		await driver.launch();
 		// Main Page
-		const mainPage = await driver.newPage();
-		await driver.goTo(mainPage, this.urls.getPath("en_main"));
+		const mainPage = await this.drivers.en.newPage();
+		await this.drivers.en.goTo(mainPage, this.urls.getPath("en_main"));
 		const categoriesContainer = await mainPage.$$(
 			"::-p-xpath(/html/body/div[2]/main/section/div/div/div/div/div/div)"
 		);
@@ -90,10 +90,10 @@ export class AlRajhiScrapper implements IScrapper {
 
 		const pages: Page[] = [];
 		for (let i = 0; i < hrefs.length; i++) {
-			const page = await driver.newPage();
-			await driver.goTo(page, this.urls.baseUrl + hrefs[i]);
+			const page = await this.drivers.en.newPage();
+			await this.drivers.en.goTo(page, this.urls.baseUrl + hrefs[i]);
 			pages.push(page);
-			await sleep(+env.RATE_LIMIT_S);
+			await sleep(DRIVER_RATE_LIMIT);
 		}
 
 		const liveOffers = new Set<string>();
@@ -124,6 +124,7 @@ export class AlRajhiScrapper implements IScrapper {
 			this.getArabicOffersDelta(new Set(offers.map((offer) => offer.ar))),
 			this.getEnglishOffersDelta(new Set(offers.map((offer) => offer.en))),
 		]);
+
 		return {
 			ar: ar_delta,
 			en: en_delta,

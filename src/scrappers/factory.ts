@@ -1,7 +1,7 @@
 import { Bank, SCRAPPERS } from "../constants";
-import { IScrapper } from "./scrapper";
+import { Drivers, IScrapper } from "./scrapper";
 
-export const setupScrapper = async (bank: Bank): Promise<IScrapper> => {
-	const scrapper = new SCRAPPERS[bank]();
+export const setupScrapper = (drivers: Drivers, bank: Bank): IScrapper => {
+	const scrapper = new SCRAPPERS[bank](drivers);
 	return scrapper;
 };

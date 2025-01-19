@@ -1,10 +1,11 @@
 import cors from "cors";
 import express, { json } from "express";
+import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import { env } from "./config";
 import { ScrapeController } from "./controller";
 import { connectToDB } from "./db";
-import { authMiddleware, scrapperInjector } from "./middlewares";
+import { authMiddleware } from "./middlewares";
 (async function () {
 	connectToDB();
 	const app = express();
@@ -25,8 +26,11 @@ import { authMiddleware, scrapperInjector } from "./middlewares";
 
 	app.get(
 		"/delta/:bank",
+		rateLimit({
+			windowMs: 10 * 60 * 1000,
+			max: 20,
+		}),
 		authMiddleware,
-		scrapperInjector,
 		ScrapeController.scrapeHandler
 	);
 

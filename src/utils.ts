@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import { env } from "./config";
 import { Bank, BANKS } from "./constants";
+import { ScrapeDriver } from "./scrappers/driver";
+import { Drivers } from "./scrappers/scrapper";
 
 export const isBankSupported = (bank: string): bank is Bank => {
 	return BANKS.includes(bank as Bank);
@@ -25,4 +27,19 @@ export const verifyToken = (token: string): Promise<JwtUserPayload> => {
 			if (decoded) resolve(decoded as JwtUserPayload);
 		});
 	});
+};
+
+export const createDrivers = (): Drivers => {
+	return {
+		en: new ScrapeDriver(),
+		ar: new ScrapeDriver(),
+	};
+};
+
+export const cleanupDrivers = (drivers: Drivers) => () => {
+	return Promise.all([drivers.en.cleanup(), drivers.ar.cleanup()]);
+};
+
+export const launchDrivers = async (drivers: Drivers) => {
+	await Promise.all([drivers.en.launch(), drivers.ar.launch()]);
 };

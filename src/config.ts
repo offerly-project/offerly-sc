@@ -6,7 +6,6 @@ dotenv.config();
 const envSchema = z.object({
 	PORT: z.string(),
 	DB_URL: z.string(),
-	RATE_LIMIT_S: z.string(),
 	NODE_ENV: z.string(),
 	PRIVATE_KEY: z.string(),
 });

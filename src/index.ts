@@ -26,11 +26,11 @@ import { authMiddleware } from "./middlewares";
 
 	app.get(
 		"/delta/:bank",
+		authMiddleware,
 		rateLimit({
 			windowMs: 10 * 60 * 1000,
 			max: 20,
 		}),
-		authMiddleware,
 		ScrapeController.scrapeHandler
 	);
 

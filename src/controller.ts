@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { cacheService } from "./cache";
 import { Bank, BANKS } from "./constants";
 import { repository } from "./repository";
 import { ScrapeDriver } from "./scrappers/driver";
@@ -18,6 +19,11 @@ const scrapeHandler = async (
 		res
 			.status(500)
 			.json({ message: "Too many active scrappers, try again later." });
+		return;
+	}
+	const cachedOffers = cacheService.get(`delta-${req.params.bank}`);
+	if (cachedOffers) {
+		res.json(cachedOffers);
 		return;
 	}
 	const drivers = createDrivers();

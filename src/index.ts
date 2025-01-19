@@ -1,6 +1,5 @@
 import cors from "cors";
 import express, { json } from "express";
-import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import { env } from "./config";
 import { ScrapeController } from "./controller";
@@ -24,15 +23,7 @@ import { authMiddleware } from "./middlewares";
 		})
 	);
 
-	app.get(
-		"/delta/:bank",
-		authMiddleware,
-		rateLimit({
-			windowMs: 10 * 60 * 1000,
-			max: 20,
-		}),
-		ScrapeController.scrapeHandler
-	);
+	app.get("/delta/:bank", authMiddleware, ScrapeController.scrapeHandler);
 
 	app.listen(env.PORT, () => {
 		console.log(`Server is running on port ${env.PORT}`);

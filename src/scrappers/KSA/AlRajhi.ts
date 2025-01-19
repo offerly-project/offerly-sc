@@ -2,7 +2,13 @@ import { Page } from "puppeteer";
 import { DRIVER_RATE_LIMIT } from "../../constants";
 import { IOffer } from "../../global";
 import { URLS } from "../../urls";
-import { sleep } from "../../utils";
+import {
+	getAddedDelta,
+	getRemovedDelta,
+	prepareScrappedOffersToDelta,
+	prepareStoredOffersToDelta,
+	sleep,
+} from "../../utils";
 import { Delta, Drivers, IDelta, IScrapper } from "../scrapper";
 
 export class AlRajhiScrapper implements IScrapper {
@@ -50,7 +56,7 @@ export class AlRajhiScrapper implements IScrapper {
 			await sleep(DRIVER_RATE_LIMIT);
 		}
 
-		const liveOffers = new Set<string>();
+		const liveOffers: string[] = [];
 		for (const page of pages) {
 			while (await page.$(".btn-alrajhi-primary")) {
 				await page.click(".btn-alrajhi-primary");
@@ -60,12 +66,13 @@ export class AlRajhiScrapper implements IScrapper {
 			for await (const offerNode of offerNodes) {
 				const title = await offerNode.evaluate((el) => el.textContent);
 				if (title) {
-					liveOffers.add(title.trim());
+					liveOffers.push(title);
 				}
 			}
 		}
-		const delta_added = [...liveOffers].filter((x) => !dbOffers.has(x));
-		const delta_removed = [...dbOffers].filter((x) => !liveOffers.has(x));
+		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
+		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
+		const delta_removed = getRemovedDelta(dbOffers, scrappedOffers);
 
 		return {
 			delta_added,
@@ -96,7 +103,7 @@ export class AlRajhiScrapper implements IScrapper {
 			await sleep(DRIVER_RATE_LIMIT);
 		}
 
-		const liveOffers = new Set<string>();
+		const liveOffers: string[] = [];
 		for (const page of pages) {
 			while (await page.$(".btn-alrajhi-primary")) {
 				await page.click(".btn-alrajhi-primary");
@@ -106,12 +113,13 @@ export class AlRajhiScrapper implements IScrapper {
 			for await (const offerNode of offerNodes) {
 				const title = await offerNode.evaluate((el) => el.textContent);
 				if (title) {
-					liveOffers.add(title.trim());
+					liveOffers.push(title);
 				}
 			}
 		}
-		const delta_added = [...liveOffers].filter((x) => !dbOffers.has(x));
-		const delta_removed = [...dbOffers].filter((x) => !liveOffers.has(x));
+		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
+		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
+		const delta_removed = getRemovedDelta(dbOffers, scrappedOffers);
 
 		return {
 			delta_added,
@@ -120,9 +128,10 @@ export class AlRajhiScrapper implements IScrapper {
 	}
 
 	getDelta = async (offers: IOffer[]): Promise<Delta> => {
+		const { ar, en } = prepareStoredOffersToDelta(offers);
 		const [ar_delta, en_delta] = await Promise.all([
-			this.getArabicOffersDelta(new Set(offers.map((offer) => offer.ar))),
-			this.getEnglishOffersDelta(new Set(offers.map((offer) => offer.en))),
+			this.getArabicOffersDelta(ar),
+			this.getEnglishOffersDelta(en),
 		]);
 
 		return {

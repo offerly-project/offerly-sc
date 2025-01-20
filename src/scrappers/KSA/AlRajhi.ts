@@ -64,9 +64,7 @@ export class AlRajhiScrapper implements IScrapper {
 
 					await page.waitForSelector(".load-more .button-alrajhi-primary");
 				}
-			} catch (e) {
-				console.error(e);
-			}
+			} catch (e) {}
 			try {
 				const offerNodes = await page.$$(".card-title");
 				for await (const offerNode of offerNodes) {
@@ -75,9 +73,7 @@ export class AlRajhiScrapper implements IScrapper {
 						liveOffers.push(title);
 					}
 				}
-			} catch (e) {
-				console.error(e);
-			}
+			} catch (e) {}
 		}
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
 
@@ -121,9 +117,7 @@ export class AlRajhiScrapper implements IScrapper {
 
 					await page.waitForSelector(".load-more .button-alrajhi-primary");
 				}
-			} catch (e) {
-				console.log(e);
-			}
+			} catch (e) {}
 			try {
 				const offerNodes = await page.$$(".card-title");
 				for await (const offerNode of offerNodes) {
@@ -132,9 +126,7 @@ export class AlRajhiScrapper implements IScrapper {
 						liveOffers.push(title);
 					}
 				}
-			} catch (e) {
-				console.log(e);
-			}
+			} catch (e) {}
 		}
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
 

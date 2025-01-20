@@ -9,7 +9,7 @@ export const SCRAPPERS: Record<Bank, new (drivers: Drivers) => IScrapper> = {
 	alrajhi: AlRajhiScrapper,
 };
 
-export const INACTIVITY_TIMEOUT = 1000 * 60 * 4;
+export const INACTIVITY_TIMEOUT = 1000 * 60 * 10;
 
 export const DRIVER_RATE_LIMIT = 4;
 

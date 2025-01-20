@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { cacheService } from "./cache";
 import { Bank, BANKS } from "./constants";
 import { repository } from "./repository";
 import { ScrapeDriver } from "./scrappers/driver";
@@ -21,11 +20,11 @@ const scrapeHandler = async (
 			.json({ message: "Too many active scrappers, try again later." });
 		return;
 	}
-	const cachedOffers = await cacheService.get(`delta-${req.params.bank}`);
-	if (cachedOffers) {
-		res.json(cachedOffers);
-		return;
-	}
+	// const cachedOffers = await cacheService.get(`delta-${req.params.bank}`);
+	// if (cachedOffers) {
+	// 	res.json(cachedOffers);
+	// 	return;
+	// }
 	const drivers = createDrivers();
 	await launchDrivers(drivers);
 	try {
@@ -41,11 +40,11 @@ const scrapeHandler = async (
 
 		const offers = await repository.getBankOffers(req.params.bank);
 		const delta = await scrapper.getDelta(offers);
-		cacheService.set(
-			`delta-${req.params.bank}`,
-			JSON.stringify(delta),
-			60 * 60 * 24
-		);
+		// cacheService.set(
+		// 	`delta-${req.params.bank}`,
+		// 	JSON.stringify(delta),
+		// 	60 * 60 * 24
+		// );
 		res.json(delta);
 	} catch (e) {
 		console.error(e);

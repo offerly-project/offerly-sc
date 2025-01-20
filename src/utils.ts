@@ -61,6 +61,7 @@ export const prepareScrappedOffersToDelta = (offers: string[]): Set<string> => {
 
 export const getAddedDelta = (stored: Set<string>, scrapped: Set<string>) => {
 	const added: string[] = [];
+
 	for (const offer of scrapped) {
 		if (!stored.has(offer)) added.push(offer);
 	}

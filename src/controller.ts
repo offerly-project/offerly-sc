@@ -39,6 +39,7 @@ const scrapeHandler = async (
 		const scrapper = setupScrapper(drivers, req.params.bank);
 
 		const offers = await repository.getBankOffers(req.params.bank);
+
 		const delta = await scrapper.getDelta(offers);
 		// cacheService.set(
 		// 	`delta-${req.params.bank}`,

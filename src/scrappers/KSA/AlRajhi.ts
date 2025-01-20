@@ -57,20 +57,30 @@ export class AlRajhiScrapper implements IScrapper {
 		}
 
 		const liveOffers: string[] = [];
-		for (const page of pages) {
-			while (await page.$(".btn-alrajhi-primary")) {
-				await page.click(".btn-alrajhi-primary");
-				await page.waitForSelector(".btn-alrajhi-primary");
-			}
-			const offerNodes = await page.$$(".card-title");
-			for await (const offerNode of offerNodes) {
-				const title = await offerNode.evaluate((el) => el.textContent);
-				if (title) {
-					liveOffers.push(title);
+		for await (const page of pages) {
+			try {
+				while (await page.$(".load-more .button-alrajhi-primary")) {
+					await page.click(".load-more .button-alrajhi-primary");
+
+					await page.waitForSelector(".load-more .button-alrajhi-primary");
 				}
+			} catch (e) {
+				console.error(e);
+			}
+			try {
+				const offerNodes = await page.$$(".card-title");
+				for await (const offerNode of offerNodes) {
+					const title = await offerNode.evaluate((el) => el.textContent);
+					if (title) {
+						liveOffers.push(title);
+					}
+				}
+			} catch (e) {
+				console.error(e);
 			}
 		}
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
+
 		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
 		const delta_removed = getRemovedDelta(dbOffers, scrappedOffers);
 
@@ -104,20 +114,30 @@ export class AlRajhiScrapper implements IScrapper {
 		}
 
 		const liveOffers: string[] = [];
-		for (const page of pages) {
-			while (await page.$(".btn-alrajhi-primary")) {
-				await page.click(".btn-alrajhi-primary");
-				await page.waitForSelector(".btn-alrajhi-primary");
-			}
-			const offerNodes = await page.$$(".card-title");
-			for await (const offerNode of offerNodes) {
-				const title = await offerNode.evaluate((el) => el.textContent);
-				if (title) {
-					liveOffers.push(title);
+		for await (const page of pages) {
+			try {
+				while (await page.$(".load-more .button-alrajhi-primary")) {
+					await page.click(".load-more .button-alrajhi-primary");
+
+					await page.waitForSelector(".load-more .button-alrajhi-primary");
 				}
+			} catch (e) {
+				console.log(e);
+			}
+			try {
+				const offerNodes = await page.$$(".card-title");
+				for await (const offerNode of offerNodes) {
+					const title = await offerNode.evaluate((el) => el.textContent);
+					if (title) {
+						liveOffers.push(title);
+					}
+				}
+			} catch (e) {
+				console.log(e);
 			}
 		}
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
+
 		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
 		const delta_removed = getRemovedDelta(dbOffers, scrappedOffers);
 

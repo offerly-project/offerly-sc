@@ -1,20 +1,23 @@
+import Redis from "ioredis";
+import { env } from "./config";
+
 class CacheService {
-	private cache: Map<string, any> = new Map();
-
-	public set(key: string, value: any) {
-		this.cache.set(key, value);
+	private _redis: Redis;
+	constructor() {
+		this._redis = new Redis(env.REDIS_URL);
 	}
 
-	public get(key: string) {
-		return this.cache.get(key);
+	public set(key: string, value: string, expiration: number) {
+		this._redis.set(key, value, "EX", expiration);
 	}
 
-	public delete(key: string) {
-		this.cache.delete(key);
-	}
-
-	public clear() {
-		this.cache.clear();
+	public async get<T>(key: string) {
+		const value = await this._redis.get(key);
+		if (value) {
+			return JSON.parse(value) as T;
+		} else {
+			return null;
+		}
 	}
 }
 

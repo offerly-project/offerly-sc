@@ -21,7 +21,7 @@ const scrapeHandler = async (
 			.json({ message: "Too many active scrappers, try again later." });
 		return;
 	}
-	const cachedOffers = cacheService.get(`delta-${req.params.bank}`);
+	const cachedOffers = await cacheService.get(`delta-${req.params.bank}`);
 	if (cachedOffers) {
 		res.json(cachedOffers);
 		return;
@@ -41,10 +41,13 @@ const scrapeHandler = async (
 
 		const offers = await repository.getBankOffers(req.params.bank);
 		const delta = await scrapper.getDelta(offers);
-		cacheService.set(`delta-${req.params.bank}`, delta);
+		cacheService.set(
+			`delta-${req.params.bank}`,
+			JSON.stringify(delta),
+			60 * 60 * 24
+		);
 		res.json(delta);
 	} catch (e) {
-		cleanupDrivers(drivers);
 		console.error(e);
 		res.status(500).json({ message: "Error scrapping data" });
 	}

@@ -17,6 +17,7 @@ export class AlRajhiScrapper implements IScrapper {
 		ar_main: "/ar/Personal/Offers",
 	});
 	drivers: Drivers = {} as Drivers;
+
 	constructor(drivers: Drivers) {
 		this.drivers.en = drivers.en;
 		this.drivers.ar = drivers.ar;
@@ -27,24 +28,29 @@ export class AlRajhiScrapper implements IScrapper {
 		const offerNodes = await page.$$(".card-title");
 		for await (const offerNode of offerNodes) {
 			const title = await offerNode.evaluate((el) => el.textContent);
-			if (title) offers.push(title.trim());
+			if (title) {
+				offers.push(title.trim());
+			}
 		}
 		return offers;
 	}
 
 	async getArabicOffersDelta(dbOffers: Set<string>): Promise<IDelta> {
-		// Main Page
 		const mainPage = await this.drivers.ar.newPage();
 		await this.drivers.ar.goTo(mainPage, this.urls.getPath("ar_main"));
+
 		const categoriesContainer = await mainPage.$$(
 			"::-p-xpath(/html/body/div[2]/main/section/div/div/div/div/div/div)"
 		);
+
 		const hrefs: string[] = [];
 		for await (const category of categoriesContainer) {
 			const node = await category.$$("div:nth-child(2) > div > a");
 			for await (const n of node) {
 				const href = await n.evaluate((el) => el.getAttribute("href"));
-				if (href) hrefs.push(href);
+				if (href) {
+					hrefs.push(href);
+				}
 			}
 		}
 
@@ -54,17 +60,19 @@ export class AlRajhiScrapper implements IScrapper {
 			await this.drivers.ar.goTo(page, this.urls.baseUrl + hrefs[i]);
 			pages.push(page);
 			await sleep(DRIVER_RATE_LIMIT);
+			try {
+				while (
+					await page.waitForSelector(".load-more .button-alrajhi-primary", {
+						timeout: 1000,
+					})
+				) {
+					await page.click(".load-more .button-alrajhi-primary");
+				}
+			} catch (e) {}
 		}
 
 		const liveOffers: string[] = [];
 		for await (const page of pages) {
-			try {
-				while (await page.$(".load-more .button-alrajhi-primary")) {
-					await page.click(".load-more .button-alrajhi-primary");
-
-					await page.waitForSelector(".load-more .button-alrajhi-primary");
-				}
-			} catch (e) {}
 			try {
 				const offerNodes = await page.$$(".card-title");
 				for await (const offerNode of offerNodes) {
@@ -75,6 +83,7 @@ export class AlRajhiScrapper implements IScrapper {
 				}
 			} catch (e) {}
 		}
+
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
 
 		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
@@ -85,19 +94,23 @@ export class AlRajhiScrapper implements IScrapper {
 			delta_removed,
 		};
 	}
+
 	async getEnglishOffersDelta(dbOffers: Set<string>): Promise<IDelta> {
-		// Main Page
 		const mainPage = await this.drivers.en.newPage();
 		await this.drivers.en.goTo(mainPage, this.urls.getPath("en_main"));
+
 		const categoriesContainer = await mainPage.$$(
 			"::-p-xpath(/html/body/div[2]/main/section/div/div/div/div/div/div)"
 		);
+
 		const hrefs: string[] = [];
 		for await (const category of categoriesContainer) {
 			const node = await category.$$("div:nth-child(2) > div > a");
 			for await (const n of node) {
 				const href = await n.evaluate((el) => el.getAttribute("href"));
-				if (href) hrefs.push(href);
+				if (href) {
+					hrefs.push(href);
+				}
 			}
 		}
 
@@ -107,17 +120,19 @@ export class AlRajhiScrapper implements IScrapper {
 			await this.drivers.en.goTo(page, this.urls.baseUrl + hrefs[i]);
 			pages.push(page);
 			await sleep(DRIVER_RATE_LIMIT);
+			try {
+				while (
+					await page.waitForSelector(".load-more .button-alrajhi-primary", {
+						timeout: 1000,
+					})
+				) {
+					await page.click(".load-more .button-alrajhi-primary");
+				}
+			} catch (e) {}
 		}
 
 		const liveOffers: string[] = [];
 		for await (const page of pages) {
-			try {
-				while (await page.$(".load-more .button-alrajhi-primary")) {
-					await page.click(".load-more .button-alrajhi-primary");
-
-					await page.waitForSelector(".load-more .button-alrajhi-primary");
-				}
-			} catch (e) {}
 			try {
 				const offerNodes = await page.$$(".card-title");
 				for await (const offerNode of offerNodes) {
@@ -128,6 +143,7 @@ export class AlRajhiScrapper implements IScrapper {
 				}
 			} catch (e) {}
 		}
+
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
 
 		const delta_added = getAddedDelta(dbOffers, scrappedOffers);

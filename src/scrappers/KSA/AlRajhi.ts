@@ -146,11 +146,6 @@ export class AlRajhiScrapper implements IScrapper {
 		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
 		const delta_removed = getRemovedDelta(dbOffers, scrappedOffers);
 
-		console.log("Added: ", delta_added);
-		console.log("Removed: ", delta_removed);
-		console.log("Stored", dbOffers);
-		console.log("Scrapped", scrappedOffers);
-
 		return {
 			delta_added,
 			delta_removed,

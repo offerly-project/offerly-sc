@@ -11,6 +11,8 @@ import {
 } from "../../utils";
 import { Delta, Drivers, IDelta, IScrapper } from "../scrapper";
 
+const WAIT_TIMEOUT = 1000;
+
 export class AlRajhiScrapper implements IScrapper {
 	urls = new URLS("https://www.alrajhibank.com.sa", {
 		en_main: "/en/Personal/Offers",
@@ -27,6 +29,7 @@ export class AlRajhiScrapper implements IScrapper {
 		const offers: string[] = [];
 		const offerNodes = await page.$$(".card-title");
 		for await (const offerNode of offerNodes) {
+			await offerNode.hover(); // Hover over each card title
 			const title = await offerNode.evaluate((el) => el.textContent);
 			if (title) {
 				offers.push(title.trim());
@@ -54,34 +57,31 @@ export class AlRajhiScrapper implements IScrapper {
 			}
 		}
 
-		const pages: Page[] = [];
+		const liveOffers: string[] = [];
 		for (let i = 0; i < hrefs.length; i++) {
 			const page = await this.drivers.ar.newPage();
 			await this.drivers.ar.goTo(page, this.urls.baseUrl + hrefs[i]);
-			pages.push(page);
-			await sleep(DRIVER_RATE_LIMIT);
+
 			try {
 				while (
 					await page.waitForSelector(".load-more .button-alrajhi-primary", {
-						timeout: 1000,
+						timeout: WAIT_TIMEOUT,
 					})
 				) {
 					await page.click(".load-more .button-alrajhi-primary");
+					await sleep(1);
 				}
 			} catch (e) {}
-		}
-
-		const liveOffers: string[] = [];
-		for await (const page of pages) {
 			try {
 				const offerNodes = await page.$$(".card-title");
 				for await (const offerNode of offerNodes) {
 					const title = await offerNode.evaluate((el) => el.textContent);
 					if (title) {
-						liveOffers.push(title);
+						liveOffers.push(title.trim());
 					}
 				}
 			} catch (e) {}
+			await sleep(DRIVER_RATE_LIMIT);
 		}
 
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
@@ -114,40 +114,42 @@ export class AlRajhiScrapper implements IScrapper {
 			}
 		}
 
-		const pages: Page[] = [];
+		const liveOffers: string[] = [];
 		for (let i = 0; i < hrefs.length; i++) {
 			const page = await this.drivers.en.newPage();
 			await this.drivers.en.goTo(page, this.urls.baseUrl + hrefs[i]);
-			pages.push(page);
-			await sleep(DRIVER_RATE_LIMIT);
+
 			try {
 				while (
 					await page.waitForSelector(".load-more .button-alrajhi-primary", {
-						timeout: 1000,
+						timeout: WAIT_TIMEOUT,
 					})
 				) {
 					await page.click(".load-more .button-alrajhi-primary");
+					await sleep(1);
 				}
 			} catch (e) {}
-		}
-
-		const liveOffers: string[] = [];
-		for await (const page of pages) {
 			try {
 				const offerNodes = await page.$$(".card-title");
 				for await (const offerNode of offerNodes) {
 					const title = await offerNode.evaluate((el) => el.textContent);
 					if (title) {
-						liveOffers.push(title);
+						liveOffers.push(title.trim());
 					}
 				}
 			} catch (e) {}
+			await sleep(DRIVER_RATE_LIMIT);
 		}
 
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
 
 		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
 		const delta_removed = getRemovedDelta(dbOffers, scrappedOffers);
+
+		console.log("Added: ", delta_added);
+		console.log("Removed: ", delta_removed);
+		console.log("Stored", dbOffers);
+		console.log("Scrapped", scrappedOffers);
 
 		return {
 			delta_added,

@@ -10,7 +10,7 @@ const DRIVER_CONFIG =
 				executablePath: "/usr/bin/google-chrome",
 				args: ["--no-sandbox"],
 		  }
-		: { headless: true, defaultViewport: null };
+		: { headless: false, defaultViewport: null };
 
 export class ScrapeDriver {
 	private _driver!: Browser;

@@ -13,6 +13,7 @@ type Delta = {
 };
 
 export interface IScrapper {
+	tz: string;
 	urls: URLS<any>;
 	drivers: Drivers;
 	getArabicOffersDelta(offers: Set<string>): Promise<IDelta>;

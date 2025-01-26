@@ -1,3 +1,4 @@
+import momentTz from "moment-timezone";
 import { Page } from "puppeteer";
 import { DRIVER_RATE_LIMIT } from "../../constants";
 import { IOffer } from "../../global";
@@ -14,6 +15,7 @@ import { Delta, Drivers, IDelta, IScrapper } from "../scrapper";
 const WAIT_TIMEOUT = 1000;
 
 export class AlRajhiScrapper implements IScrapper {
+	tz = "Asia/Riyadh";
 	urls = new URLS("https://www.alrajhibank.com.sa", {
 		en_main: "/en/Personal/Offers",
 		ar_main: "/ar/Personal/Offers",
@@ -73,9 +75,25 @@ export class AlRajhiScrapper implements IScrapper {
 				}
 			} catch (e) {}
 			try {
-				const offerNodes = await page.$$(".card-title");
+				const offerNodes = await page.$$(".card");
 				for await (const offerNode of offerNodes) {
-					const title = await offerNode.evaluate((el) => el.textContent);
+					const titleNode = await offerNode.$(".card-title");
+					const expiryNode = await offerNode.$("small");
+					if (!titleNode || !expiryNode) continue;
+					const title = await titleNode.evaluate((el) => el.textContent);
+					const expiry = await expiryNode.evaluate((el) =>
+						el.textContent?.replace("ينتهي في", "")
+					);
+					if (!expiry) continue;
+					const currentDate = new Date();
+					const expiryDate = momentTz
+						.tz(expiry, "DD/MM/YYYY", this.tz)
+						.toDate();
+
+					console.log(title, currentDate, expiryDate);
+
+					if (currentDate > expiryDate) continue;
+
 					if (title) {
 						liveOffers.push(title.trim());
 					}
@@ -130,9 +148,23 @@ export class AlRajhiScrapper implements IScrapper {
 				}
 			} catch (e) {}
 			try {
-				const offerNodes = await page.$$(".card-title");
+				const offerNodes = await page.$$(".card");
 				for await (const offerNode of offerNodes) {
-					const title = await offerNode.evaluate((el) => el.textContent);
+					const titleNode = await offerNode.$(".card-title");
+					const expiryNode = await offerNode.$("small");
+					if (!titleNode || !expiryNode) continue;
+					const title = await titleNode.evaluate((el) => el.textContent);
+					const expiry = await expiryNode.evaluate(
+						(el) => el.textContent?.split(" ")[1]
+					);
+					if (!expiry) continue;
+					const currentDate = new Date();
+					const expiryDate = momentTz
+						.tz(expiry, "DD/MM/YYYY", this.tz)
+						.toDate();
+
+					if (currentDate > expiryDate) continue;
+
 					if (title) {
 						liveOffers.push(title.trim());
 					}

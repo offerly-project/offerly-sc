@@ -30,6 +30,4 @@ import { authMiddleware } from "./middlewares";
 	});
 })();
 
-(async function () {
-	// Sandbox
-})();
+(async function () {})();

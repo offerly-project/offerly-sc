@@ -16,21 +16,15 @@ export class Repository {
 			},
 		},
 		{
-			$project: {
-				cards: 1,
-			},
-		},
-		{
 			$lookup: {
 				from: "offers",
-				localField: "cards",
-				foreignField: "applicable_cards",
+				localField: "_id",
+				foreignField: "bankId",
 				as: "offers",
 			},
 		},
 		{
 			$project: {
-				_id: 0,
 				offers: 1,
 			},
 		},

@@ -5,6 +5,7 @@ import { env } from "./config";
 import { ScrapeController } from "./controller";
 import { connectToDB } from "./db";
 import { authMiddleware } from "./middlewares";
+import { repository } from "./repository";
 (async function () {
 	connectToDB();
 	const app = express();
@@ -30,4 +31,8 @@ import { authMiddleware } from "./middlewares";
 	});
 })();
 
-(async function () {})();
+(async function () {
+	repository.getBankOffers("alrajhi").then((offers) => {
+		console.log(offers);
+	});
+})();

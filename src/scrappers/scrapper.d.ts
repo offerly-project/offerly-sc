@@ -5,6 +5,7 @@ import { ScrapeDriver } from "./driver";
 interface IDelta {
 	delta_added: string[];
 	delta_removed: string[];
+	delta_renamed: { from: string; to: string }[];
 }
 
 type Delta = {

@@ -49,29 +49,8 @@ export const prepareStoredOffersToDelta = (offers: IOffer[]) => {
 	const ar: Set<string> = new Set();
 	const en: Set<string> = new Set();
 	for (const offer of offers) {
-		ar.add(offer.ar.toLowerCase().trim());
-		en.add(offer.en.toLowerCase().trim());
+		ar.add(offer.ar.trim());
+		en.add(offer.en.trim());
 	}
 	return { ar, en };
-};
-
-export const prepareScrappedOffersToDelta = (offers: string[]): Set<string> => {
-	return new Set(offers.map((offer) => offer.toLowerCase().trim()));
-};
-
-export const getAddedDelta = (stored: Set<string>, scrapped: Set<string>) => {
-	const added: string[] = [];
-
-	for (const offer of scrapped) {
-		if (!stored.has(offer)) added.push(offer);
-	}
-	return added;
-};
-
-export const getRemovedDelta = (stored: Set<string>, scrapped: Set<string>) => {
-	const removed: string[] = [];
-	for (const offer of stored) {
-		if (!scrapped.has(offer)) removed.push(offer);
-	}
-	return removed;
 };

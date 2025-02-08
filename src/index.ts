@@ -29,5 +29,3 @@ import { authMiddleware } from "./middlewares";
 		console.log(`Server is running on port ${env.PORT}`);
 	});
 })();
-
-(async function () {})();

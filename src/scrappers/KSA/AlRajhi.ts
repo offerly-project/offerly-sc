@@ -2,14 +2,9 @@ import momentTz from "moment-timezone";
 import { Page } from "puppeteer";
 import { DRIVER_RATE_LIMIT } from "../../constants";
 import { IOffer } from "../../global";
+import { AIPrompt } from "../../prompt";
 import { URLS } from "../../urls";
-import {
-	getAddedDelta,
-	getRemovedDelta,
-	prepareScrappedOffersToDelta,
-	prepareStoredOffersToDelta,
-	sleep,
-} from "../../utils";
+import { prepareStoredOffersToDelta, sleep } from "../../utils";
 import { Delta, Drivers, IDelta, IScrapper } from "../scrapper";
 
 const WAIT_TIMEOUT = 1000;
@@ -102,15 +97,11 @@ export class AlRajhiScrapper implements IScrapper {
 			await sleep(DRIVER_RATE_LIMIT);
 		}
 
-		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
+		const scrappedOffers = new Set(liveOffers);
 
-		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
-		const delta_removed = getRemovedDelta(dbOffers, scrappedOffers);
+		const delta = AIPrompt.getDelta(dbOffers, scrappedOffers);
 
-		return {
-			delta_added,
-			delta_removed,
-		};
+		return delta;
 	}
 
 	async getEnglishOffersDelta(dbOffers: Set<string>): Promise<IDelta> {
@@ -173,15 +164,11 @@ export class AlRajhiScrapper implements IScrapper {
 			await sleep(DRIVER_RATE_LIMIT);
 		}
 
-		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
+		const scrappedOffers = new Set(liveOffers);
 
-		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
-		const delta_removed = getRemovedDelta(dbOffers, scrappedOffers);
+		const delta = AIPrompt.getDelta(dbOffers, scrappedOffers);
 
-		return {
-			delta_added,
-			delta_removed,
-		};
+		return delta;
 	}
 
 	getDelta = async (offers: IOffer[]): Promise<Delta> => {

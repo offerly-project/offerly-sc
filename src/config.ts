@@ -9,7 +9,6 @@ const envSchema = z.object({
 	NODE_ENV: z.string(),
 	PRIVATE_KEY: z.string(),
 	REDIS_URL: z.string(),
-	OPENAI_URL: z.string(),
 	OPENAI_API_KEY: z.string(),
 });
 

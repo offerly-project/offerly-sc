@@ -23,7 +23,7 @@ import { authMiddleware } from "./middlewares";
 		})
 	);
 
-	app.get("/delta/:bank", authMiddleware, ScrapeController.scrapeHandler);
+	app.get("/delta/:bank", authMiddleware, ScrapeController.deltaHandler);
 
 	app.listen(env.PORT, () => {
 		console.log(`Server is running on port ${env.PORT}`);

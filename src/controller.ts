@@ -9,7 +9,7 @@ type Params = {
 	bank: Bank;
 };
 
-const scrapeHandler = async (
+const deltaHandler = async (
 	req: Request<Params>,
 	res: Response,
 	next: NextFunction
@@ -20,11 +20,7 @@ const scrapeHandler = async (
 			.json({ message: "Too many active scrappers, try again later." });
 		return;
 	}
-	// const cachedOffers = await cacheService.get(`delta-${req.params.bank}`);
-	// if (cachedOffers) {
-	// 	res.json(cachedOffers);
-	// 	return;
-	// }
+
 	const drivers = createDrivers();
 	await launchDrivers(drivers);
 	try {
@@ -39,13 +35,8 @@ const scrapeHandler = async (
 		const scrapper = setupScrapper(drivers, req.params.bank);
 
 		const offers = await repository.getBankOffers(req.params.bank);
-
 		const delta = await scrapper.getDelta(offers);
-		// cacheService.set(
-		// 	`delta-${req.params.bank}`,
-		// 	JSON.stringify(delta),
-		// 	60 * 60 * 24
-		// );
+
 		res.json(delta);
 	} catch (e) {
 		console.error(e);
@@ -54,5 +45,5 @@ const scrapeHandler = async (
 };
 
 export const ScrapeController = {
-	scrapeHandler,
+	deltaHandler,
 };

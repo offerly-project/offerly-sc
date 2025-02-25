@@ -74,3 +74,7 @@ export const getRemovedDelta = (stored: Set<string>, scrapped: Set<string>) => {
 	}
 	return removed;
 };
+
+export const OFFERS_PROMPT_RESPONSE_FORMAT = {
+	data: ["string", "string", "string"],
+};

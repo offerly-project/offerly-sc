@@ -25,3 +25,7 @@ type Drivers = {
 	en: ScrapeDriver;
 	ar: ScrapeDriver;
 };
+
+export type OffersPromptResponseFormat = {
+	data: string[];
+};

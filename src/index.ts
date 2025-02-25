@@ -29,3 +29,12 @@ import { authMiddleware } from "./middlewares";
 		console.log(`Server is running on port ${env.PORT}`);
 	});
 })();
+
+(async function () {
+	// const drivers = createDrivers();
+	// await launchDrivers(drivers);
+	// const scrapper = new SabScrapper(drivers);
+	// const offers = await repository.getBankOffers("sab");
+	// const delta = await scrapper.getDelta(offers);
+	// console.log(delta);
+})();

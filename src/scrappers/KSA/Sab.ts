@@ -1,6 +1,7 @@
 import momentTz from "moment-timezone";
 import "moment/locale/ar";
 import { sleep } from "openai/core";
+import { DRIVER_RATE_LIMIT } from "../../constants";
 import { IOffer } from "../../global";
 import { URLS } from "../../urls";
 import {
@@ -78,6 +79,7 @@ export class SabScrapper implements IScrapper {
 
 				liveOffers.push(title);
 			}
+			await sleep(DRIVER_RATE_LIMIT);
 		}
 
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
@@ -133,6 +135,7 @@ export class SabScrapper implements IScrapper {
 
 				liveOffers.push(title);
 			}
+			await sleep(DRIVER_RATE_LIMIT);
 		}
 
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);

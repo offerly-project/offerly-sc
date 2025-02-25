@@ -18,7 +18,7 @@ import { authMiddleware } from "./middlewares";
 			origin: [
 				"http://localhost:3000",
 				"http://localhost:8080",
-				"https://offerly.me",
+				"https://admin.offerly.me",
 			],
 		})
 	);

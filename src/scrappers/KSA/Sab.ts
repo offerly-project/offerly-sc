@@ -53,29 +53,32 @@ export class SabScrapper implements IScrapper {
 			const cardsContainer = await page.$$(cardsContainerPath);
 
 			for (const card of cardsContainer) {
+				const titleSelector = ".sab-cardsListingTab-v3__cards-title";
 				const expirationDateSelector =
 					".sab-cardsListingTab-v3__promotion-date";
-				const titleSelector = ".sab-cardsListingTab-v3__cards-title";
 
 				const titleNode = await card.$(titleSelector);
 				const expirationDateNode = await card.$(expirationDateSelector);
 
-				if (!titleNode || !expirationDateNode) continue;
+				if (!titleNode) continue;
 
 				const title = await titleNode.evaluate((el) => el.textContent);
-				const expirationDate = await expirationDateNode.evaluate(
-					(el) => el.textContent
-				);
+				const expirationDate = expirationDateNode
+					? await expirationDateNode.evaluate((el) => el.textContent)
+					: null;
 
-				if (!title || !expirationDate) continue;
+				if (!title) continue;
 
 				const currentDate = new Date();
 
-				const expiryDate = momentTz
-					.tz(expirationDate, "MMMM D, YYYY", this.tz)
-					.toDate();
+				// If expiration date exists, filter expired offers
+				if (expirationDate) {
+					const expiryDate = momentTz
+						.tz(expirationDate, "MMMM D, YYYY", this.tz)
+						.toDate();
 
-				if (expiryDate && currentDate > expiryDate) continue;
+					if (expiryDate && currentDate > expiryDate) continue;
+				}
 
 				liveOffers.push(title);
 			}
@@ -109,29 +112,32 @@ export class SabScrapper implements IScrapper {
 			const cardsContainer = await page.$$(cardsContainerPath);
 
 			for (const card of cardsContainer) {
+				const titleSelector = ".sab-cardsListingTab-v3__cards-title";
 				const expirationDateSelector =
 					".sab-cardsListingTab-v3__promotion-date";
-				const titleSelector = ".sab-cardsListingTab-v3__cards-title";
 
 				const titleNode = await card.$(titleSelector);
 				const expirationDateNode = await card.$(expirationDateSelector);
 
-				if (!titleNode || !expirationDateNode) continue;
+				if (!titleNode) continue;
 
 				const title = await titleNode.evaluate((el) => el.textContent);
-				const expirationDate = await expirationDateNode.evaluate(
-					(el) => el.textContent
-				);
+				const expirationDate = expirationDateNode
+					? await expirationDateNode.evaluate((el) => el.textContent)
+					: null;
 
-				if (!title || !expirationDate) continue;
+				if (!title) continue;
 
 				const currentDate = new Date();
 
-				const expiryDate = momentTz
-					.tz(expirationDate, "MMMM D, YYYY", this.tz)
-					.toDate();
+				// If expiration date exists, filter expired offers
+				if (expirationDate) {
+					const expiryDate = momentTz
+						.tz(expirationDate, "MMMM D, YYYY", this.tz)
+						.toDate();
 
-				if (expiryDate && currentDate > expiryDate) continue;
+					if (expiryDate && currentDate > expiryDate) continue;
+				}
 
 				liveOffers.push(title);
 			}

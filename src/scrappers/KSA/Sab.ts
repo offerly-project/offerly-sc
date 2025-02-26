@@ -131,7 +131,7 @@ export class SabScrapper implements IScrapper {
 					.tz(expirationDate, "MMMM D, YYYY", this.tz)
 					.toDate();
 
-				if (currentDate > expiryDate) continue;
+				if (expiryDate && currentDate > expiryDate) continue;
 
 				liveOffers.push(title);
 			}

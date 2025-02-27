@@ -1,19 +1,16 @@
-import momentTz from "moment-timezone";
-import "moment/locale/ar";
-import { sleep } from "openai/core";
 import { DRIVER_RATE_LIMIT } from "../../constants";
-import { IOffer } from "../../global";
 import { URLS } from "../../urls";
 import {
 	getAddedDelta,
 	getRemovedDelta,
 	prepareScrappedOffersToDelta,
-	prepareStoredOffersToDelta,
+	sleep,
 } from "../../utils";
-import { Delta, Drivers, IDelta, IScrapper } from "../scrapper";
+import { BaseScrapper, Drivers, IDelta } from "../scrappers";
 
-export class SabScrapper implements IScrapper {
-	tz = "Asia/Riyadh";
+const WAIT_TIMEOUT = 1000;
+
+export class SabScrapper extends BaseScrapper {
 	urls = new URLS("https://www.sab.com", {
 		en_shopping:
 			"/en/personal/compare-credit-cards/credit-card-special-offers/shopping/?selected=Shopping",
@@ -32,21 +29,35 @@ export class SabScrapper implements IScrapper {
 		ar_lifestyle:
 			"/ar/personal/compare-credit-cards/credit-card-special-offers/lifestyle/?selected=نمط%20الحياة",
 	});
-	drivers: Drivers;
+
 	constructor(drivers: Drivers) {
-		this.drivers = drivers;
+		super(drivers);
 	}
-	getArabicOffersDelta = async (offers: Set<string>): Promise<IDelta> => {
+
+	// Implement the abstract getOffersDelta method specific to SabScrapper
+	async getOffersDelta(
+		dbOffers: Set<string>,
+		lang: "ar" | "en"
+	): Promise<IDelta> {
 		const liveOffers: string[] = [];
-		const links = [
-			this.urls.getPath("ar_shopping"),
-			this.urls.getPath("ar_travel"),
-			this.urls.getPath("ar_dining"),
-			this.urls.getPath("ar_lifestyle"),
-		];
+		const links =
+			lang === "ar"
+				? [
+						this.urls.getPath("ar_shopping"),
+						this.urls.getPath("ar_travel"),
+						this.urls.getPath("ar_dining"),
+						this.urls.getPath("ar_lifestyle"),
+				  ]
+				: [
+						this.urls.getPath("en_shopping"),
+						this.urls.getPath("en_travel"),
+						this.urls.getPath("en_dining"),
+						this.urls.getPath("en_lifestyle"),
+				  ];
+
 		for (const link of links) {
-			const page = await this.drivers.ar.newPage();
-			await this.drivers.ar.goTo(page, link);
+			const page = await this.drivers[lang].newPage();
+			await this.drivers[lang].goTo(page, link);
 			await sleep(1000);
 
 			const cardsContainerPath = ".sab-cardsListingTab-v3__cards > div"; // The selector for offers cards
@@ -54,31 +65,14 @@ export class SabScrapper implements IScrapper {
 
 			for (const card of cardsContainer) {
 				const titleSelector = ".sab-cardsListingTab-v3__cards-title";
-				const expirationDateSelector =
-					".sab-cardsListingTab-v3__promotion-date";
 
 				const titleNode = await card.$(titleSelector);
-				const expirationDateNode = await card.$(expirationDateSelector);
 
 				if (!titleNode) continue;
 
 				const title = await titleNode.evaluate((el) => el.textContent);
-				const expirationDate = expirationDateNode
-					? await expirationDateNode.evaluate((el) => el.textContent)
-					: null;
 
 				if (!title) continue;
-
-				const currentDate = new Date();
-
-				// If expiration date exists, filter expired offers
-				if (expirationDate) {
-					const expiryDate = momentTz
-						.tz(expirationDate, "MMMM D, YYYY", this.tz)
-						.toDate();
-
-					if (expiryDate && currentDate > expiryDate) continue;
-				}
 
 				liveOffers.push(title);
 			}
@@ -87,83 +81,12 @@ export class SabScrapper implements IScrapper {
 
 		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
 
-		const delta_added = getAddedDelta(offers, scrappedOffers);
-		const delta_removed = getRemovedDelta(offers, scrappedOffers);
+		const delta_added = getAddedDelta(dbOffers, scrappedOffers);
+		const delta_removed = getRemovedDelta(dbOffers, scrappedOffers);
 
 		return {
 			delta_added,
 			delta_removed,
-		};
-	};
-	getEnglishOffersDelta = async (offers: Set<string>): Promise<IDelta> => {
-		const liveOffers: string[] = [];
-		const links = [
-			this.urls.getPath("en_shopping"),
-			this.urls.getPath("en_travel"),
-			this.urls.getPath("en_dining"),
-			this.urls.getPath("en_lifestyle"),
-		];
-
-		for (const link of links) {
-			const page = await this.drivers.en.newPage();
-			await this.drivers.en.goTo(page, link);
-			await sleep(1000);
-			const cardsContainerPath = ".sab-cardsListingTab-v3__cards > div"; // The selector for offers cards
-			const cardsContainer = await page.$$(cardsContainerPath);
-
-			for (const card of cardsContainer) {
-				const titleSelector = ".sab-cardsListingTab-v3__cards-title";
-				const expirationDateSelector =
-					".sab-cardsListingTab-v3__promotion-date";
-
-				const titleNode = await card.$(titleSelector);
-				const expirationDateNode = await card.$(expirationDateSelector);
-
-				if (!titleNode) continue;
-
-				const title = await titleNode.evaluate((el) => el.textContent);
-				const expirationDate = expirationDateNode
-					? await expirationDateNode.evaluate((el) => el.textContent)
-					: null;
-
-				if (!title) continue;
-
-				const currentDate = new Date();
-
-				// If expiration date exists, filter expired offers
-				if (expirationDate) {
-					const expiryDate = momentTz
-						.tz(expirationDate, "MMMM D, YYYY", this.tz)
-						.toDate();
-
-					if (expiryDate && currentDate > expiryDate) continue;
-				}
-
-				liveOffers.push(title);
-			}
-			await sleep(DRIVER_RATE_LIMIT);
-		}
-
-		const scrappedOffers = prepareScrappedOffersToDelta(liveOffers);
-
-		const delta_added = getAddedDelta(offers, scrappedOffers);
-		const delta_removed = getRemovedDelta(offers, scrappedOffers);
-
-		return {
-			delta_added,
-			delta_removed,
-		};
-	};
-	async getDelta(offers: IOffer[]): Promise<Delta> {
-		const { ar, en } = prepareStoredOffersToDelta(offers);
-		const [ar_delta, en_delta] = await Promise.all([
-			this.getArabicOffersDelta(ar),
-			this.getEnglishOffersDelta(en),
-		]);
-
-		return {
-			ar: ar_delta,
-			en: en_delta,
 		};
 	}
 }

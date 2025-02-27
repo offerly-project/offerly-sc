@@ -1,7 +1,7 @@
 import { Bank, SCRAPPERS } from "../constants";
-import { Drivers, IScrapper } from "./scrapper";
+import { BaseScrapper, Drivers } from "./scrappers";
 
-export const setupScrapper = (drivers: Drivers, bank: Bank): IScrapper => {
+export const setupScrapper = (drivers: Drivers, bank: Bank): BaseScrapper => {
 	const scrapper = new SCRAPPERS[bank](drivers);
 	return scrapper;
 };

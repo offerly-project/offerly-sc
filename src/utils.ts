@@ -3,7 +3,7 @@ import { env } from "./config";
 import { Bank, BANKS } from "./constants";
 import { IOffer } from "./global";
 import { ScrapeDriver } from "./scrappers/driver";
-import { Drivers } from "./scrappers/scrapper";
+import { Drivers } from "./scrappers/scrappers";
 
 export const isBankSupported = (bank: string): bank is Bank => {
 	return BANKS.includes(bank as Bank);

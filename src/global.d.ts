@@ -1,4 +1,4 @@
-import { IScrapper } from "./scrappers/scrapper";
+import { IScrapper } from "./scrappers/scrappers";
 
 declare module "express-serve-static-core" {
 	interface Request {

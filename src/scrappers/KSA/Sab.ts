@@ -8,26 +8,12 @@ import {
 } from "../../utils";
 import { BaseScrapper, Drivers, IDelta } from "../scrappers";
 
-const WAIT_TIMEOUT = 1000;
-
 export class SabScrapper extends BaseScrapper {
 	urls = new URLS("https://www.sab.com", {
-		en_shopping:
-			"/en/personal/compare-credit-cards/credit-card-special-offers/shopping/?selected=Shopping",
-		en_travel:
-			"/en/personal/compare-credit-cards/credit-card-special-offers/travel/?selected=Travel",
-		en_dining:
-			"/en/personal/compare-credit-cards/credit-card-special-offers/dining-groceries/?selected=Dining%20%26%20Groceries",
-		en_lifestyle:
-			"/en/personal/compare-credit-cards/credit-card-special-offers/lifestyle/?selected=Lifestyle",
-		ar_shopping:
-			"/ar/personal/compare-credit-cards/credit-card-special-offers/shopping/?selected=التسوق",
-		ar_travel:
-			"/ar/personal/compare-credit-cards/credit-card-special-offers/travel/?selected=للسفر%20والسياحة",
-		ar_dining:
-			"/ar/personal/compare-credit-cards/credit-card-special-offers/dining-groceries/?selected=المطاعم%20وأسواق%20التغذية",
-		ar_lifestyle:
-			"/ar/personal/compare-credit-cards/credit-card-special-offers/lifestyle/?selected=نمط%20الحياة",
+		categories_en:
+			"/en/personal/compare-credit-cards/credit-card-special-offers",
+		categories_ar:
+			"/ar/personal/compare-credit-cards/credit-card-special-offers",
 	});
 
 	constructor(drivers: Drivers) {
@@ -40,26 +26,20 @@ export class SabScrapper extends BaseScrapper {
 		lang: "ar" | "en"
 	): Promise<IDelta> {
 		const liveOffers: string[] = [];
-		const links =
-			lang === "ar"
-				? [
-						this.urls.getPath("ar_shopping"),
-						this.urls.getPath("ar_travel"),
-						this.urls.getPath("ar_dining"),
-						this.urls.getPath("ar_lifestyle"),
-				  ]
-				: [
-						this.urls.getPath("en_shopping"),
-						this.urls.getPath("en_travel"),
-						this.urls.getPath("en_dining"),
-						this.urls.getPath("en_lifestyle"),
-				  ];
+		const page = await this.drivers[lang].newPage();
+		await this.drivers[lang].goTo(
+			page,
+			this.urls.getPath(`categories_${lang}`)
+		);
+		const links = await page.$$(".sab-small-cards a");
 
 		for (const link of links) {
 			const page = await this.drivers[lang].newPage();
-			await this.drivers[lang].goTo(page, link);
-			await sleep(1000);
+			const href = await link.evaluate((el) => el.getAttribute("href"));
+			const fullLink = this.urls.baseUrl + href;
 
+			await this.drivers[lang].goTo(page, fullLink);
+			await page.waitForSelector(".sab-cardsListingTab-v3__cards > div");
 			const cardsContainerPath = ".sab-cardsListingTab-v3__cards > div"; // The selector for offers cards
 			const cardsContainer = await page.$$(cardsContainerPath);
 
@@ -76,6 +56,7 @@ export class SabScrapper extends BaseScrapper {
 
 				liveOffers.push(title);
 			}
+
 			await sleep(DRIVER_RATE_LIMIT);
 		}
 

@@ -25,6 +25,29 @@ export class ScrapeDriver {
 		return ScrapeDriver._instancesNumber < SCRAPPERS_CAP;
 	};
 
+	allowLocation = async (page: Page) => {
+		await page.evaluateOnNewDocument(function () {
+			navigator.geolocation.getCurrentPosition = function (cb) {
+				setTimeout(() => {
+					cb({
+						coords: {
+							accuracy: 0,
+							altitude: null,
+							altitudeAccuracy: null,
+							heading: null,
+							latitude: 0,
+							longitude: 0,
+							speed: null,
+							toJSON: () => {},
+						},
+						timestamp: Date.now(),
+						toJSON: () => {},
+					});
+				}, 1000);
+			};
+		});
+	};
+
 	launch = async () => {
 		this._driver = await Puppeteer.launch(DRIVER_CONFIG);
 	};

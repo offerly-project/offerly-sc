@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { Page } from "puppeteer";
 import { env } from "./config";
 import { Bank, BANKS } from "./constants";
 import { IOffer } from "./global";
@@ -77,4 +78,23 @@ export const getRemovedDelta = (stored: Set<string>, scrapped: Set<string>) => {
 
 export const OFFERS_PROMPT_RESPONSE_FORMAT = {
 	data: ["string", "string", "string"],
+};
+
+const WAIT_TIMEOUT = 1000;
+export const triggerAllLoadMore = async (page: Page, selector: string) => {
+	return new Promise<void>(async (resolve) => {
+		try {
+			while (
+				await page.waitForSelector(selector, {
+					timeout: WAIT_TIMEOUT,
+				})
+			) {
+				await page.click(selector);
+				await sleep(1);
+			}
+			resolve();
+		} catch (e) {
+			resolve();
+		}
+	});
 };

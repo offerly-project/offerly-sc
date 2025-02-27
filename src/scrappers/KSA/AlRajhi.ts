@@ -5,6 +5,7 @@ import {
 	getRemovedDelta,
 	prepareScrappedOffersToDelta,
 	sleep,
+	triggerAllLoadMore,
 } from "../../utils";
 import { BaseScrapper, Drivers, IDelta } from "../scrappers";
 
@@ -12,8 +13,8 @@ const WAIT_TIMEOUT = 1000;
 
 export class AlRajhiScrapper extends BaseScrapper {
 	urls = new URLS("https://www.alrajhibank.com.sa", {
-		en_main: "/en/Personal/Offers",
-		ar_main: "/ar/Personal/Offers",
+		categories_en: "/en/Personal/Offers",
+		categories_ar: "/ar/Personal/Offers",
 	});
 
 	constructor(drivers: Drivers) {
@@ -26,7 +27,10 @@ export class AlRajhiScrapper extends BaseScrapper {
 		lang: "ar" | "en"
 	): Promise<IDelta> {
 		const mainPage = await this.drivers[lang].newPage();
-		await this.drivers[lang].goTo(mainPage, this.urls.getPath(`${lang}_main`));
+		await this.drivers[lang].goTo(
+			mainPage,
+			this.urls.getPath(`categories_${lang}`)
+		);
 
 		const categoriesContainer = await mainPage.$$(
 			"::-p-xpath(/html/body/div[2]/main/section/div/div/div/div/div/div)"
@@ -48,16 +52,8 @@ export class AlRajhiScrapper extends BaseScrapper {
 			const page = await this.drivers[lang].newPage();
 			await this.drivers[lang].goTo(page, this.urls.baseUrl + hrefs[i]);
 
-			try {
-				while (
-					await page.waitForSelector(".load-more .button-alrajhi-primary", {
-						timeout: WAIT_TIMEOUT,
-					})
-				) {
-					await page.click(".load-more .button-alrajhi-primary");
-					await sleep(1);
-				}
-			} catch (e) {}
+			await triggerAllLoadMore(page, ".btn-load-more");
+
 			try {
 				const offerNodes = await page.$$(".card-title");
 				for await (const offerNode of offerNodes) {

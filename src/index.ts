@@ -5,9 +5,6 @@ import { env } from "./config";
 import { ScrapeController } from "./controller";
 import { connectToDB } from "./db";
 import { authMiddleware } from "./middlewares";
-import { repository } from "./repository";
-import { SnbScrapper } from "./scrappers/KSA/Snb";
-import { createDrivers, launchDrivers } from "./utils";
 (async function () {
 	connectToDB();
 	const app = express();
@@ -33,11 +30,11 @@ import { createDrivers, launchDrivers } from "./utils";
 	});
 })();
 
-(async function () {
-	const drivers = createDrivers();
-	await launchDrivers(drivers);
-	const scrapper = new SnbScrapper(drivers);
-	const offers = await repository.getBankOffers("snb");
-	const delta = await scrapper.getDelta(offers);
-	console.log(delta);
-})();
+// (async function () {
+// 	const drivers = createDrivers();
+// 	await launchDrivers(drivers);
+// 	const scrapper = new SnbScrapper(drivers);
+// 	const offers = await repository.getBankOffers("snb");
+// 	const delta = await scrapper.getDelta(offers);
+// 	console.log(delta);
+// })();

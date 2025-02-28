@@ -33,8 +33,8 @@ import { authMiddleware } from "./middlewares";
 // (async function () {
 // 	const drivers = createDrivers();
 // 	await launchDrivers(drivers);
-// 	const scrapper = new EmiratesNbdScrapper(drivers);
-// 	const offers = await repository.getBankOffers("nbd");
+// 	const scrapper = new AlRajhiScrapper(drivers);
+// 	const offers = await repository.getBankOffers("alrajhi");
 // 	const delta = await scrapper.getDelta(offers);
 // 	console.log(delta);
 // })();

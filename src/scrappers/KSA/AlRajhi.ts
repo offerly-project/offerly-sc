@@ -55,7 +55,7 @@ export class AlRajhiScrapper extends BaseScrapper {
 			await triggerAllLoadMore(page, ".btn-load-more");
 
 			try {
-				const offerNodes = await page.$$(".card-title");
+				const offerNodes = await page.$$(".card-body");
 				for await (const offerNode of offerNodes) {
 					const titleNode = await offerNode.$(".card-title");
 

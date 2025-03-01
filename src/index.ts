@@ -34,8 +34,8 @@ import { authMiddleware } from "./middlewares";
 // (async function () {
 // 	const drivers = createDrivers();
 // 	await launchDrivers(drivers);
-// 	const scrapper = new RiyadScrapper(drivers);
-// 	const offers = await repository.getBankOffers("riyad");
+// 	const scrapper = new BsfScrapper(drivers);
+// 	const offers = await repository.getBankOffers("bsf");
 
 // 	const delta = await scrapper.getDelta(offers);
 // 	console.log(delta);

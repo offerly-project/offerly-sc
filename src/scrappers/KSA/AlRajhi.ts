@@ -9,8 +9,6 @@ import {
 } from "../../utils";
 import { BaseScrapper, Drivers, IDelta } from "../scrappers";
 
-const WAIT_TIMEOUT = 1000;
-
 export class AlRajhiScrapper extends BaseScrapper {
 	urls = new URLS("https://www.alrajhibank.com.sa", {
 		categories_en: "/en/Personal/Offers",

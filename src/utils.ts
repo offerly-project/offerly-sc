@@ -84,6 +84,7 @@ const WAIT_TIMEOUT = 1000;
 export const triggerAllLoadMore = async (page: Page, selector: string) => {
 	return new Promise<void>(async (resolve) => {
 		try {
+			console.log(await page.$(selector));
 			while (
 				await page.waitForSelector(selector, {
 					timeout: WAIT_TIMEOUT,
@@ -94,6 +95,8 @@ export const triggerAllLoadMore = async (page: Page, selector: string) => {
 			}
 			resolve();
 		} catch (e) {
+			console.log("No more load more buttons");
+
 			resolve();
 		}
 	});

@@ -8,7 +8,7 @@ class CacheService {
 	}
 
 	public set(key: string, value: string, expiration: number) {
-		this._redis.set(key, value, "EX", expiration);
+		return this._redis.set(key, value, "EX", expiration);
 	}
 
 	public async get<T>(key: string) {

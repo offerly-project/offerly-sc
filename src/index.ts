@@ -10,6 +10,7 @@ import { authMiddleware } from "./middlewares";
 	const app = express();
 
 	app.use(json());
+	console.log(env);
 
 	app.use(morgan("dev"));
 

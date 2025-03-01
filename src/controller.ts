@@ -1,9 +1,16 @@
 import { NextFunction, Request, Response } from "express";
+import { cacheService } from "./cache";
 import { Bank, BANKS } from "./constants";
 import { repository } from "./repository";
 import { ScrapeDriver } from "./scrappers/driver";
 import { setupScrapper } from "./scrappers/factory";
-import { cleanupDrivers, createDrivers, launchDrivers } from "./utils";
+import { Delta } from "./scrappers/scrappers";
+import {
+	cleanupDrivers,
+	createDrivers,
+	launchDrivers,
+	markDeltaOffers,
+} from "./utils";
 
 type Params = {
 	bank: Bank;
@@ -21,6 +28,18 @@ const deltaHandler = async (
 		return;
 	}
 
+	const offers = await repository.getBankOffers(req.params.bank);
+
+	const cachedOffers = await cacheService.get<Delta>(
+		`delta-${req.params.bank}`
+	);
+
+	if (cachedOffers) {
+		const markedOffers: Delta = markDeltaOffers(offers, cachedOffers);
+		res.json(markedOffers);
+		return;
+	}
+
 	const drivers = createDrivers();
 	await launchDrivers(drivers);
 	try {
@@ -34,8 +53,13 @@ const deltaHandler = async (
 		}
 		const scrapper = setupScrapper(drivers, req.params.bank);
 
-		const offers = await repository.getBankOffers(req.params.bank);
 		const delta = await scrapper.getDelta(offers);
+
+		await cacheService.set(
+			`delta-${req.params.bank}`,
+			JSON.stringify(delta),
+			60 * 60 * 3
+		);
 
 		res.json(delta);
 	} catch (e) {

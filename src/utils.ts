@@ -4,7 +4,7 @@ import { env } from "./config";
 import { Bank, BANKS } from "./constants";
 import { IOffer } from "./global";
 import { ScrapeDriver } from "./scrappers/driver";
-import { Drivers } from "./scrappers/scrappers";
+import { Delta, Drivers } from "./scrappers/scrappers";
 
 export const isBankSupported = (bank: string): bank is Bank => {
 	return BANKS.includes(bank as Bank);
@@ -97,4 +97,40 @@ export const triggerAllLoadMore = async (page: Page, selector: string) => {
 			resolve();
 		}
 	});
+};
+
+export const markDeltaOffers = (offers: IOffer[], delta: Delta) => {
+	const markedOffers = { ...delta };
+	for (const key of ["en", "ar"]) {
+		const langDelta = delta[key as keyof typeof delta];
+
+		const newAdded: string[] = [];
+		const newRemoved: string[] = [];
+		for (const offer of langDelta.delta_added) {
+			if (
+				offers.find(
+					(o) => o[key as keyof typeof o].toLowerCase() === offer.toLowerCase()
+				)
+			) {
+				newAdded.push(`[${offer}]`);
+			} else {
+				newAdded.push(offer);
+			}
+		}
+		for (const offer of langDelta.delta_removed) {
+			if (
+				!offers.find(
+					(o) => o[key as keyof typeof o].toLowerCase() === offer.toLowerCase()
+				)
+			) {
+				newRemoved.push(`[${offer}]`);
+			} else {
+				newRemoved.push(offer);
+			}
+		}
+		langDelta.delta_added = newAdded;
+		langDelta.delta_removed = newRemoved;
+		markedOffers[key as keyof typeof delta] = langDelta;
+	}
+	return markedOffers;
 };

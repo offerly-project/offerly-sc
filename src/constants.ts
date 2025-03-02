@@ -33,4 +33,4 @@ export const INACTIVITY_TIMEOUT = 1000 * 60 * 10;
 
 export const DRIVER_RATE_LIMIT = 2;
 
-export const SCRAPPERS_CAP = 5 * 2;
+export const SCRAPPERS_CAP = 1;

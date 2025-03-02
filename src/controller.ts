@@ -61,7 +61,7 @@ const deltaHandler = async (
 			60 * 60 * 3
 		);
 
-		res.json(markDeltaOffers(offers, delta));
+		res.json(delta);
 	} catch (e) {
 		console.error(e);
 		res.status(500).json({ message: "Error scrapping data" });
